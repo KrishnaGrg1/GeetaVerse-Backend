@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// User Model - Core user entity with authentication
+model User {
+  id              String    @id @default(uuid())
+  name            String
+  email           String    @unique
+  password        String    // bcrypt hashed
+  role            Role      @default(USER)
+  isPremium       Boolean   @default(false)
+  premiumExpiresAt DateTime?
+  emailVerified   Boolean   @default(false)
+  isActive        Boolean   @default(true)
+  
+  // Relationships
+  notes           Note[]
+  bookmarks       Bookmark[]
+  sessions        Session[]
+  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([email])
+  @@map("users")
+}
+
+// Session Model - For JWT token management and refresh tokens
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  refreshToken String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([refreshToken])
+  @@map("sessions")
+}
+
+// Note Model - Personal notes on verses
+model Note {
+  id        String   @id @default(uuid())
+  title     String?
+  content   String   @db.Text
+  verseRef  String   // Format: "BG1.1" or "chapter:verse"
+  userId    String
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([verseRef])
+  @@map("notes")
+}
+
+// Bookmark Model - Favorite verses
+model Bookmark {
+  id        String   @id @default(uuid())
+  verseRef  String   // Format: "BG1.1" or "chapter:verse"
+  userId    String
+  tags      String[] // Array of custom tags
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt DateTime @default(now())
+
+  @@unique([userId, verseRef]) // Prevent duplicate bookmarks
+  @@index([userId])
+  @@index([verseRef])
+  @@map("bookmarks")
+}
+
+// Role Enum
+enum Role {
+  ADMIN
+  USER
+  PREMIUM  // Optional: separate premium role
+}
