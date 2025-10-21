@@ -16,6 +16,18 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { CreateNoteDto, UpdateNoteDto } from './dto/note.dto';
 import { CreateBookmarkDto } from './dto/bookmark.dto';
 import { ApiResponseDto, PaginationDto } from '../common/dto/response.dto';
+import {
+  ApiSuccessResponse,
+  ApiErrorResponses,
+  ApiCreatedResponse,
+} from '../common/decorators/api-response.decorator';
+import {
+  UserProfileDto,
+  NoteDto,
+  BookmarkDto,
+  PaginatedNotesDto,
+  PaginatedBookmarksDto,
+} from './dto/user-response.dto';
 
 @ApiTags('User')
 @Controller('user')
@@ -27,6 +39,8 @@ export class UserController {
   // Profile endpoints
   @Get('profile')
   @ApiOperation({ summary: 'Get current user profile' })
+  @ApiSuccessResponse(UserProfileDto, 'User profile retrieved successfully')
+  @ApiErrorResponses()
   async getProfile(@CurrentUser('id') userId: string) {
     const profile = await this.userService.getProfile(userId);
     return ApiResponseDto.success(profile);
@@ -35,6 +49,8 @@ export class UserController {
   // Notes endpoints
   @Post('notes')
   @ApiOperation({ summary: 'Create a note' })
+  @ApiCreatedResponse(NoteDto, 'Note created successfully')
+  @ApiErrorResponses()
   async createNote(
     @CurrentUser('id') userId: string,
     @Body() dto: CreateNoteDto,
@@ -45,6 +61,8 @@ export class UserController {
 
   @Get('notes')
   @ApiOperation({ summary: 'Get all user notes' })
+  @ApiSuccessResponse(PaginatedNotesDto, 'Notes retrieved successfully')
+  @ApiErrorResponses()
   async getNotes(
     @CurrentUser('id') userId: string,
     @Query() pagination: PaginationDto,
@@ -55,6 +73,8 @@ export class UserController {
 
   @Get('notes/:id')
   @ApiOperation({ summary: 'Get note by ID' })
+  @ApiSuccessResponse(NoteDto, 'Note retrieved successfully')
+  @ApiErrorResponses()
   async getNoteById(
     @CurrentUser('id') userId: string,
     @Param('id') noteId: string,
@@ -65,6 +85,8 @@ export class UserController {
 
   @Put('notes/:id')
   @ApiOperation({ summary: 'Update a note' })
+  @ApiSuccessResponse(NoteDto, 'Note updated successfully')
+  @ApiErrorResponses()
   async updateNote(
     @CurrentUser('id') userId: string,
     @Param('id') noteId: string,
@@ -76,6 +98,8 @@ export class UserController {
 
   @Delete('notes/:id')
   @ApiOperation({ summary: 'Delete a note' })
+  @ApiSuccessResponse(undefined, 'Note deleted successfully')
+  @ApiErrorResponses()
   async deleteNote(
     @CurrentUser('id') userId: string,
     @Param('id') noteId: string,
@@ -87,6 +111,8 @@ export class UserController {
   // Bookmarks endpoints
   @Post('bookmarks')
   @ApiOperation({ summary: 'Add a bookmark' })
+  @ApiCreatedResponse(BookmarkDto, 'Bookmark added successfully')
+  @ApiErrorResponses()
   async createBookmark(
     @CurrentUser('id') userId: string,
     @Body() dto: CreateBookmarkDto,
@@ -97,6 +123,8 @@ export class UserController {
 
   @Get('bookmarks')
   @ApiOperation({ summary: 'Get all user bookmarks' })
+  @ApiSuccessResponse(PaginatedBookmarksDto, 'Bookmarks retrieved successfully')
+  @ApiErrorResponses()
   async getBookmarks(
     @CurrentUser('id') userId: string,
     @Query() pagination: PaginationDto,
@@ -107,6 +135,8 @@ export class UserController {
 
   @Delete('bookmarks/:id')
   @ApiOperation({ summary: 'Remove a bookmark' })
+  @ApiSuccessResponse(undefined, 'Bookmark removed successfully')
+  @ApiErrorResponses()
   async deleteBookmark(
     @CurrentUser('id') userId: string,
     @Param('id') bookmarkId: string,

@@ -5,6 +5,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import * as fs from 'fs';
 import * as path from 'path';
+
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
@@ -59,9 +60,14 @@ async function bootstrap() {
     },
   });
 
+  // Serve OpenAPI JSON at /openapi.json endpoint
+  app.use('/openapi.json', (req, res) => {
+    res.json(document);
+  });
+
   // ✅ Also write the Swagger JSON file for frontend codegen
   try {
-    const outputPath = path.resolve(__dirname, '../openapi.json');
+    const outputPath = path.join(process.cwd(), 'openapi.json');
     fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
     logger.log(`📄 Swagger schema generated at: ${outputPath}`);
   } catch (error) {

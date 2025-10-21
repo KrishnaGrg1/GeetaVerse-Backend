@@ -7,7 +7,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
-import { ZodError } from 'zod';
 import { ApiResponseDto } from '../dto/response.dto';
 
 @Catch()
@@ -34,13 +33,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
       } else {
         message = exception.message;
       }
-    } else if (exception instanceof ZodError) {
-      status = HttpStatus.BAD_REQUEST;
-      message = 'Validation failed';
-      errors = exception.errors.map((err) => ({
-        field: err.path.join('.'),
-        message: err.message,
-      }));
     } else if (exception instanceof Error) {
       message = exception.message;
 

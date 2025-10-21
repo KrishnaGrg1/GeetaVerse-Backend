@@ -1,17 +1,5 @@
-import { z } from 'zod';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsOptional, MinLength } from 'class-validator';
-
-export const createNoteSchema = z.object({
-  title: z.string().optional(),
-  content: z.string().min(1, 'Content is required'),
-  verseRef: z.string().min(1, 'Verse reference is required'),
-});
-
-export const updateNoteSchema = z.object({
-  title: z.string().optional(),
-  content: z.string().optional(),
-});
 
 export class CreateNoteDto {
   @ApiProperty({ required: false })
