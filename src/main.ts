@@ -3,7 +3,8 @@ import { ValidationPipe, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-
+import * as fs from 'fs';
+import * as path from 'path';
 async function bootstrap() {
   const logger = new Logger('Bootstrap');
 
@@ -58,6 +59,14 @@ async function bootstrap() {
     },
   });
 
+  // ✅ Also write the Swagger JSON file for frontend codegen
+  try {
+    const outputPath = path.resolve(__dirname, '../openapi.json');
+    fs.writeFileSync(outputPath, JSON.stringify(document, null, 2));
+    logger.log(`📄 Swagger schema generated at: ${outputPath}`);
+  } catch (error) {
+    logger.error('❌ Failed to write Swagger schema file', error);
+  }
   // Start server
   const port = configService.get('app.port') || 3000;
   await app.listen(port);
